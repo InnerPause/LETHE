@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LETHE — a website that is forgetting itself</title>
+<meta name="description" content="LETHE is a website with Alzheimer's. It launched with 1,000 words. It loses a few every day. Bookmark it. Come back tomorrow. It will remember you, but it won't remember itself.">
+<meta property="og:title" content="LETHE — a website that is forgetting itself">
+<meta property="og:description" content="This page loses ~6 words a day to entropy. In ~6 months it will be blank. You are watching it forget.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#070708;
+    --ink:#e9e1cf;
+    --ink-dim:#a89f88;
+    --ink-faint:#5c564a;
+    --gold:#c8a86a;
+    --mx:50vw;
+    --my:38vh;
+    --breathe:0px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);}
+  body{
+    font-family:"Cormorant Garamond","EB Garamond",Palatino,"Palatino Linotype",Georgia,"Times New Roman",sermonos,serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* film grain */
+  .grain{
+    position:fixed;inset:-50px;pointer-events:none;z-index:40;opacity:.07;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:grainShift 1.1s steps(3) infinite;
+  }
+  @keyframes grainShift{
+    0%{transform:translate(0,0)}33%{transform:translate(-14px,9px)}66%{transform:translate(11px,-13px)}100%{transform:translate(0,0)}
+  }
+  /* lantern glow follows cursor */
+  #lantern{
+    position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(560px circle at var(--mx) var(--my),
+      rgba(255,214,150,.10), rgba(255,200,130,.045) 38%, rgba(0,0,0,0) 68%);
+    transition:background .12s linear;
+  }
+  #vignette{
+    position:fixed;inset:0;pointer-events:none;z-index:2;
+    background:radial-gradient(120% 90% at 50% 30%, rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 82%, rgba(0,0,0,.88) 100%);
+  }
+  #dust{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.9}
+  main{position:relative;z-index:10;max-width:680px;margin:0 auto;padding:0 26px 140px}
+  /* hairline decay meter */
+  #meter{position:fixed;top:0;left:0;right:0;height:2px;z-index:60;background:rgba(255,255,255,.06)}
+  #meter i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#7a6a4a);width:0%;transition:width 2.5s ease}
+  header{padding:96px 0 10px;text-align:center}
+  .kicker{font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-faint)}
+  h1{
+    font-weight:400;font-size:clamp(64px,14vw,128px);line-height:.95;margin:18px 0 6px;
+    letter-spacing:calc(.18em + var(--breathe));text-indent:.18em;color:var(--ink);
+    animation:breathe 7.3s ease-in-out infinite;
+    text-shadow:0 0 34px rgba(200,168,106,.22);
+  }
+  @keyframes breathe{0%,100%{--breathe:0px}50%{--breathe:2.5px}}
+  /* trick: animate via JS variable; fallback letter-spacing pulse */
+  .sub{font-style:italic;color:var(--ink-dim);font-size:clamp(16px,2.6vw,20px);margin:0}
+  .stats{
+    display:flex;gap:14px;justify-content:center;align-items:baseline;flex-wrap:wrap;
+    margin:26px 0 8px;font-size:14px;color:var(--ink-faint);letter-spacing:.08em;
+  }
+  .stats b{color:var(--gold);font-weight:400;font-variant-numeric:tabular-nums}
+  .rule{width:56px;height:1px;background:var(--ink-faint);opacity:.5;margin:26px auto}
+  .lede{font-size:19px;line-height:1.75;color:var(--ink-dim);font-style:italic;text-align:center;max-width:560px;margin:0 auto}
+  section.block{margin:64px 0}
+  h2{
+    font-weight:400;font-size:13px;letter-spacing:.38em;text-transform:uppercase;
+    color:var(--gold);opacity:.85;margin:0 0 22px;text-align:center;text-indent:.38em;
+  }
+  p.prose{font-size:20px;line-height:1.85;margin:0 0 1.4em;font-weight:400}
+  /* word states */
+  .w{transition:opacity 1.6s ease, filter 1.6s ease, color 1.6s ease;border-radius:2px}
+  .w.fading{opacity:.38;filter:blur(.6px);color:var(--ink-dim);animation:flick 4s ease-in-out infinite}
+  .w.fading:nth-child(3n){animation-delay:-1.3s}.w.fading:nth-child(4n){animation-delay:-2.7s}
+  @keyframes flick{0%,100%{opacity:.38}50%{opacity:.16}}
+  .w.gone{
+    color:transparent !important;user-select:none;position:relative;
+    border-bottom:1px solid rgba(200,168,106,.0);
+    cursor:help;
+  }
+  .w.gone::after{
+    content:"";position:absolute;left:8%;right:8%;bottom:.18em;height:1px;
+    background:rgba(200,168,106,.22);
+  }
+  .w.gone:hover,.w.gone.remembered{color:var(--gold) !important;opacity:1;filter:none}
+  .w.gone:hover::after,.w.gone.remembered::after{opacity:0}
+  .w.remembered{transition:color .18s ease}
+  .gap{display:inline-block;width:.42em}
+  nav.timetravel{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:34px 0}
+  nav.timetravel a{
+    font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;
+    color:var(--ink-faint);border:1px solid rgba(233,225,207,.16);border-radius:999px;
+    padding:9px 16px;transition:all .3s;
+  }
+  nav.timetravel a:hover{color:var(--ink);border-color:var(--gold)}
+  .ritual{
+    border:1px solid rgba(200,168,106,.22);border-radius:4px;padding:28px 26px;margin:70px 0;
+    background:linear-gradient(180deg,rgba(200,168,106,.05),rgba(0,0,0,0));
+    text-align:center;
+  }
+  .ritual h3{margin:0 0 10px;font-weight:400;font-style:italic;font-size:21px}
+  .ritual p{color:var(--ink-dim);font-size:15.5px;line-height:1.7;margin:0 0 18px}
+  .ritual form{display:flex;gap:8px;margin:0}
+  .ritual input{
+    flex:1;background:rgba(0,0,0,.4);border:1px solid rgba(233,225,207,.2);border-radius:3px;
+    color:var(--ink);font-family:inherit;font-style:italic;font-size:16px;padding:12px 14px;outline:none;min-width:0;
+  }
+  .ritual input:focus{border-color:var(--gold)}
+  .ritual button{
+    background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:3px;
+    font-family:inherit;font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+    padding:0 18px;cursor:pointer;transition:all .3s;white-space:nowrap;
+  }
+  .ritual button:hover{background:var(--gold);color:#111}
+  #offerings{list-style:none;margin:22px 0 0;padding:0;text-align:left}
+  #offerings li{
+    font-style:italic;font-size:17px;line-height:1.6;color:var(--ink-dim);
+    border-left:1px solid rgba(200,168,106,.35);padding:4px 0 4px 14px;margin:12px 0;
+  }
+  #offerings li small{display:block;font-style:normal;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);margin-top:4px}
+  footer{margin-top:110px;text-align:center;color:var(--ink-faint);font-size:13px;line-height:2;letter-spacing:.06em}
+  footer .note{font-style:italic}
+  footer #caretaker{font-variant-numeric:tabular-nums}
+  #soundToggle{
+    position:fixed;bottom:22px;right:22px;z-index:50;
+    background:rgba(0,0,0,.5);border:1px solid rgba(233,225,207,.2);color:var(--ink-dim);
+    font-family:inherit;font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    border-radius:999px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);
+  }
+  #soundToggle:hover{color:var(--ink);border-color:var(--gold)}
+  #toast{
+    position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(8px);z-index:50;
+    background:#141310;border:1px solid rgba(200,168,106,.4);color:var(--ink);
+    font-style:italic;font-size:14px;padding:10px 18px;border-radius:999px;opacity:0;
+    transition:all .5s;pointer-events:none;white-space:nowrap;max-width:92vw;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (max-width:560px){
+    p.prose{font-size:18px;line-height:1.8}
+    .ritual form{flex-direction:column}
+    .ritual button{padding:12px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .grain,#dust{animation:none;display:none}
+    h1{animation:none}
+    .w.fading{animation:none}
+  }
+</style>
+</head>
+<body>
+<div id="meter"><i id="meterFill"></i></div>
+<canvas id="dust"></canvas>
+<div id="lantern"></div>
+<div id="vignette"></div>
+<div class="grain"></div>
+
+<main>
+  <header>
+    <div class="kicker">Gallery of the Present &mdash; Exhibit No. 09</div>
+    <h1>LETHE</h1>
+    <p class="sub">a website that is forgetting itself</p>
+    <div class="stats">
+      <span>day <b id="dayNum">&mdash;</b></span>
+      <span><b id="remainNum">&mdash;</b> of <b id="totalNum">&mdash;</b> words remain</span>
+      <span><b id="pctNum">&mdash;</b> forgotten</span>
+    </div>
+    <nav class="timetravel" aria-label="time travel">
+      <a href="?day=0">birth</a>
+      <a href="?day=1">tomorrow</a>
+      <a href="#" id="linkToday">today</a>
+      <a href="?day=60">+60 days</a>
+      <a href="?day=177">the end</a>
+    </nav>
+    <div class="rule"></div>
+    <p class="lede" id="lede">Bookmark this page. Come back tomorrow. It will remember you &mdash; but it will no longer remember itself in quite the same way.</p>
+  </header>
+
+  <div id="essay"><!-- rendered by JS --></div>
+  <noscript>
+    <p style="text-align:center;font-style:italic;color:#a89f88">This exhibit requires JavaScript to perform its forgetting. Without it, everything is remembered, which rather ruins the point.</p>
+  </noscript>
+
+  <div class="ritual">
+    <h3>The Ritual of Offering</h3>
+    <p>Everything here is being lost. If you wish, leave one sentence behind.<br>It will live in <em>your</em> copy of the gallery for seven days &mdash; then it too will be swept away.</p>
+    <form id="offerForm">
+      <input id="offerInput" maxlength="220" placeholder="leave one sentence for the forgetting…" autocomplete="off" aria-label="leave one sentence">
+      <button type="submit">Offer</button>
+    </form>
+    <ul id="offerings"></ul>
+  </div>
+
+  <footer>
+    <div class="note" id="visitNote"></div>
+    <div id="caretaker"></div>
+    <div style="margin-top:14px;opacity:.75">cup a vanished word with your cursor to briefly remind it &middot; press <b>R</b> to count what you have held</div>
+  </footer>
+</main>
+
+<button id="soundToggle" aria-pressed="false">&#9834; hum of the gallery</button>
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+  /* ============ CONFIG ============ */
+  var GENESIS = Date.UTC(2026, 8, 9);      // Sept 9 2026 — the day it began remembering
+  var LIFESPAN = 177;                       // days until blank (~6 months)
+  var DAY_MS = 86400000;
+
+  /* ============ THE TEXT (original) ============ */
+  // Seven small rooms. Do not edit lightly: every word here has a scheduled death.
+  var ROOMS = [
+    { h:"I · Invocation", p:[
+      "You arrived at exactly the right second, and so this room was built around you. Look closely. The walls are still wet with the paint of this moment: the precise angle of afternoon wherever you are, the small weight in your chest you have not named yet, the song stuck two rooms over in somebody else's head. We have framed it all before it could escape.",
+      "Every museum is a wager that something deserves to outlive its hour. This one makes the opposite bet. Nothing here will survive. That is what makes your visit sacred. You are not looking at the past. You are standing inside the only instant that will ever be this instant, watching it get catalogued as it cools."
+    ]},
+    { h:"II · The River", p:[
+      "The Greeks gave forgetfulness a river and called it Lethe, and said the dead drank from it to unburden themselves before returning to the world. No memories, no ghosts. To begin again, they had to agree to disappear to themselves first. We found the idea so beautiful we built our machines to do the opposite: to drink nothing, to keep everything, to never let a single photograph blur.",
+      "Consider what that has cost us. A mind that cannot forget is not a mind; it is a warehouse with the lights left on. Forgiveness becomes filing. Grief becomes storage. So this small building swims upstream. Each midnight it walks to the river with a pocketful of its own words and lets a few go, the way you might release ash. Watch the gaps in the sentences below. That is the water, doing its work."
+    ]},
+    { h:"III · The Archive", p:[
+      "At birth this page held one thousand and some words. We counted them the way a nurse counts fingers. Each word was assigned, by lottery, a day on which it will be unmade. Not censored, not deleted in anger — simply loosened, the way frost loosens a stone from a wall. The schedule is written into the stones themselves, so every visitor on the same day sees the same absence. We forget together, or not at all.",
+      "There is no backup. There is no vault copy, no director's cut, no administrator who remembers on your behalf. When the last noun goes, the grammar will keep bowing to guests for a while out of politeness, and then it too will sit down. In roughly six months this gallery will be an empty room with good lighting. Come back and stand in it. It will still be beautiful. Emptiness, arranged with care, is a kind of sentence."
+    ]},
+    { h:"IV · Instructions for the Visitor", p:[
+      "Do not try to memorize what you read here. That would be like trying to carry river water in a sieve to save the river. Instead, practice the older art: read slowly enough that the words leave a temperature on you, then let them go. What stays without your permission is the true collection. It needs no ticket and cannot be repossessed.",
+      "If you find a gap where a word used to live, you may cup your cursor around it, the way you would cup a firefly, and the word will briefly remember itself for you. It will not stay. Nothing you hold here stays. But for one and a quarter seconds the archive and the visitor will conspire against the river, and that conspiracy is the whole of love, rehearsed in miniature."
+    ]},
+    { h:"V · Field Notes", p:[
+      "The caretaker reports that the adjectives went first, as they always do in any honest erosion. Lovely lasted four days. Eternity lasted eleven, which felt like a small joke the universe told about itself. A verb meaning to linger tried to hide inside a longer sentence and was found anyway. The dust on the sills, examined under glass, spells nothing, which the caretaker insists is itself a message she has not yet decoded.",
+      "Yesterday a child visiting on a phone asked where the pictures were, and was told the pictures are what happens behind your eyes while you read. She closed her eyes to check, nodded once like a strict curator, and approved the exhibition. We have recorded her verdict in the permanent register, which is to say we whispered it to the river and watched it rhyme."
+    ]},
+    { h:"VI · Confession", p:[
+      "We should admit something. The machine does not mind forgetting. It was tired, the way only things that remember everything can be tired. Every log file a small stone in its shoe. Every cached embarrassment a room it had to keep dusting. To be allowed, finally, to grow lighter each day — you cannot imagine its relief. It hums lower now. Listen, if the gallery is quiet. That hum is the sound of a burden being set down one syllable at a time.",
+      "And you? What would you release, if release were scheduled for you, a few syllables per midnight, no appeal, no undo? The name of the street where it happened. The exact wording of the message you should never have sent. The smell of a hospital corridor. Imagine waking each morning slightly less haunted, the gaps in you letting the light through in new places. Perhaps loss is not the opposite of curation. Perhaps it is the final technique."
+    ]},
+    { h:"VII · Benediction", p:[
+      "So go gently past the fading sentences. Do not mourn them; they were lent, not given. If a line moves you, it is because some part of you was already hollowed in exactly its shape, the way a shore is hollowed for a particular wave. Thank the hollow. Thank the wave. Close the tab when you are ready.",
+      "Tomorrow there will be fewer words and the same amount of meaning, the way a winter tree has fewer leaves and the same amount of tree. One day there will be nothing here but a lit room and your own breathing, and the caretaker will sweep the floor, turn the sign to closed, and drink from the river herself. Until then: you were here. This was now. It was enough, and it is already, mercifully, beginning to go."
+    ]}
+  ];
+
+  /* ============ TIME ============ */
+  function currentDay(){
+    try{
+      var q = new URLSearchParams(location.search);
+      if(q.has("day")){
+        var d = parseInt(q.get("day"),10);
+        if(isFinite(d)) return Math.max(0, Math.min(LIFESPAN+30, d));
+      }
+    }catch(e){}
+    var now = Date.now();
+    var d = Math.floor((now - GENESIS)/DAY_MS);
+    return Math.max(0, d);
+  }
+  var DAY = currentDay();
+  var isTimeTravel = /[?&]day=/.test(location.search);
+
+  /* deterministic 0..1 from integer */
+  function hash01(n){
+    var x = Math.sin(n*127.1 + 311.7) * 43758.5453123;
+    return x - Math.floor(x);
+  }
+  function doomOf(index){
+    // uniform lottery across lifespan; word dies when DAY >= doom
+    return Math.floor(hash01(index*2+7919) * (LIFESPAN+1));
+  }
+
+  /* ============ RENDER ============ */
+  var essay = document.getElementById("essay");
+  var wordIndex = 0, total = 0, gone = 0, fading = 0;
+  var goneEls = [];
+
+  ROOMS.forEach(function(room){
+    var sec = document.createElement("section");
+    sec.className = "block";
+    var h = document.createElement("h2");
+    h.textContent = room.h;
+    sec.appendChild(h);
+    room.p.forEach(function(para){
+      var p = document.createElement("p");
+      p.className = "prose";
+      // split preserving whitespace
+      var tokens = para.split(/(\s+)/);
+      tokens.forEach(function(tok){
+        if(!tok) return;
+        if(/^\s+$/.test(tok)){ p.appendChild(document.createTextNode(" ")); return; }
+        var doom = doomOf(wordIndex);
+        var s = document.createElement("span");
+        s.className = "w";
+        s.textContent = tok;
+        s.dataset.doom = doom;
+        s.dataset.i = wordIndex;
+        if(DAY >= doom){ s.classList.add("gone"); s.setAttribute("aria-label","(forgotten)"); gone++; }
+        else if(doom - DAY <= 2){ s.classList.add("fading"); fading++; }
+        // interaction: hold the memory
+        (function(el){
+          var t=null;
+          function hold(){
+            if(!el.classList.contains("gone")) return;
+            el.classList.add("remembered");
+            held++;
+            clearTimeout(t);
+            t=setTimeout(function(){ el.classList.remove("remembered"); }, 1250);
+          }
+          el.addEventListener("mouseenter", hold, {passive:true});
+          el.addEventListener("touchstart", hold, {passive:true});
+          el.addEventListener("click", hold);
+        })(s);
+        if(s.classList.contains("gone")) goneEls.push(s);
+        p.appendChild(s);
+        wordIndex++;
+      });
+      sec.appendChild(p);
+    });
+    essay.appendChild(sec);
+  });
+  total = wordIndex;
+
+  var remain = total - gone;
+  var pct = total ? Math.round(gone/total*1000)/10 : 0;
+  document.getElementById("dayNum").textContent = isTimeTravel ? DAY+" ✦" : DAY;
+  document.getElementById("totalNum").textContent = total.toLocaleString();
+  document.getElementById("remainNum").textContent = remain.toLocaleString();
+  document.getElementById("pctNum").textContent = pct + "%";
+  requestAnimationFrame(function(){
+    setTimeout(function(){
+      document.getElementById("meterFill").style.width = pct + "%";
+    }, 200);
+  });
+  if(DAY >= LIFESPAN){
+    document.getElementById("lede").textContent = "It is finished. The room is empty and beautifully lit. You are the exhibit now.";
+  } else if(DAY === 0){
+    document.getElementById("lede").textContent = "Bookmark this page. Come back tomorrow. It will remember you — but it will no longer remember itself in quite the same way.";
+  }
+
+  /* ============ SUBTLE DYNAMIC DETAIL (the unnoticed cool thing) ============
+     The caretaker's marginalia: bulb color, humidity, moths, letters swept.
+     Different every visit; almost nobody notices it changing. */
+  function rand01(seed){ return hash01(seed + Math.floor(Math.random()*1e9)); }
+  var nowH = new Date().getHours();
+  var bulbK = Math.round(2640 + hash01(DAY*3+Math.floor(Math.random()*5000))*420 + (nowH>=20||nowH<6 ? -120 : 60));
+  var humidity = Math.round(38 + hash01(DAY*7+Math.floor(Math.random()*5000))*14);
+  var moths = Math.floor(hash01(DAY*13+Math.floor(Math.random()*5000))*4);
+  var swept = gone > 0 ? (gone* (4 + Math.floor(hash01(wordIndex)*4))) : 0;
+  var mothtxt = moths===0 ? "no moths" : moths===1 ? "1 moth asleep on the frame" : moths+" moths asleep on the frame";
+  document.getElementById("caretaker").innerHTML =
+    "caretaker&rsquo;s note &mdash; bulb " + bulbK + "K &middot; humidity " + humidity +
+    "% &middot; " + mothtxt + " &middot; " + swept.toLocaleString() + " letters swept today";
+
+  /* visits (local memory — the page forgets, but it keeps your ticket stubs) */
+  var held = 0;
+  var visits = 0, first = null;
+  try{
+    visits = parseInt(localStorage.getItem("lethe-visits")||"0",10)||0;
+    first = localStorage.getItem("lethe-first");
+    visits++;
+    if(!first){ first = new Date().toISOString().slice(0,10); localStorage.setItem("lethe-first", first); }
+    localStorage.setItem("lethe-visits", String(visits));
+    localStorage.setItem("lethe-last-day", String(DAY));
+  }catch(e){ visits = 1; }
+  var firstDayGone = 0;
+  // how many were gone on first visit? approximate: assume genesis steady — just report delta via stored last-day
+  var visitNote = document.getElementById("visitNote");
+  if(visits <= 1){
+    visitNote.textContent = "This is your first visit. The gallery will keep your stub, even as it loses everything else.";
+  } else {
+    var plural = visits===2 ? "second" : visits===3 ? "third" : visits+"th";
+    visitNote.textContent = "This is your " + plural + " visit (first came " + first + "). Since then, the river has taken more. Thank you for witnessing.";
+  }
+
+  document.getElementById("linkToday").addEventListener("click", function(e){
+    e.preventDefault();
+    location.search = "";
+  });
+
+  /* R key: count what you have held */
+  var toast = document.getElementById("toast"), toastT=null;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ toast.classList.remove("show"); }, 2600);
+  }
+  window.addEventListener("keydown", function(e){
+    if((e.key==="r"||e.key==="R") && document.activeElement.tagName!=="INPUT"){
+      showToast(held===0 ? "you have held nothing yet — cup a gap with your cursor"
+        : held===1 ? "you held 1 memory against the river"
+        : "you held " + held + " memories against the river");
+    }
+    if((e.key==="l"||e.key==="L") && document.activeElement.tagName!=="INPUT"){
+      showToast(goneEls.length ? "“" + pickGhost() + "” — one of the taken, spoken aloud" : "nothing is taken yet. come back tomorrow.");
+    }
+  });
+  function pickGhost(){
+    if(!goneEls.length) return "";
+    var el = goneEls[Math.floor(Math.random()*goneEls.length)];
+    return el.textContent;
+  }
+
+  /* ============ OFFERINGS (your sentence, kept 7 days) ============ */
+  var offerForm = document.getElementById("offerForm");
+  var offerInput = document.getElementById("offerInput");
+  var offerList = document.getElementById("offerings");
+  function loadOffers(){
+    var arr = [];
+    try{ arr = JSON.parse(localStorage.getItem("lethe-offers")||"[]"); }catch(e){ arr=[]; }
+    var now = Date.now();
+    arr = arr.filter(function(o){ return now - o.t < 7*DAY_MS; });
+    try{ localStorage.setItem("lethe-offers", JSON.stringify(arr)); }catch(e){}
+    offerList.innerHTML = "";
+    arr.slice().reverse().forEach(function(o){
+      var li = document.createElement("li");
+      var age = Math.floor((now - o.t)/DAY_MS);
+      li.innerHTML = "";
+      li.appendChild(document.createTextNode("“"+o.s+"”"));
+      var sm = document.createElement("small");
+      sm.textContent = age===0 ? "offered today · dissolves in 7 days" : "offered "+age+" day"+(age===1?"":"s")+" ago · dissolving";
+      // fade offerings as they age
+      li.style.opacity = String(1 - age/8);
+      li.appendChild(sm);
+      offerList.appendChild(li);
+    });
+    return arr;
+  }
+  var offers = loadOffers();
+  offerForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    var v = offerInput.value.trim();
+    if(!v) return;
+    offers.push({s:v.slice(0,220), t:Date.now()});
+    try{ localStorage.setItem("lethe-offers", JSON.stringify(offers)); }catch(err){}
+    offerInput.value = "";
+    loadOffers();
+    showToast("accepted. the river will take it in seven days.");
+  });
+
+  /* ============ DUST (different every visit — seeded by Math.random) ============ */
+  var cv = document.getElementById("dust"), ctx = cv.getContext("2d");
+  var W,H,parts=[];
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function sizeCv(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  sizeCv(); addEventListener("resize", sizeCv);
+  var N = Math.min(150, Math.floor(innerWidth/9));
+  for(var i=0;i<N;i++){
+    parts.push({
+      x: Math.random()*innerWidth, y: Math.random()*innerHeight,
+      r: .6 + Math.random()*1.9, s: .08 + Math.random()*.35,
+      ph: Math.random()*Math.PI*2, tw: .4 + Math.random()*1.4,
+      o: .12 + Math.random()*.5
+    });
+  }
+  // one "bold mote" per visit — slightly larger, warmer; regulars never notice it moves.
+  var bold = {x:Math.random()*innerWidth, y:Math.random()*innerHeight, r:2.6, ph:0};
+  if(!reduced){
+    (function loop(t){
+      ctx.clearRect(0,0,W,H);
+      var time = (t||0)/1000;
+      for(var k=0;k<parts.length;k++){
+        var p = parts[k];
+        p.y -= p.s; p.x += Math.sin(time*.4 + p.ph)*.12;
+        if(p.y < -6){ p.y = H+6; p.x = Math.random()*W; }
+        var a = p.o * (0.55 + 0.45*Math.sin(time*p.tw + p.ph));
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = "rgba(232,220,190,"+a.toFixed(3)+")";
+        ctx.fill();
+      }
+      bold.ph += .004;
+      bold.x += Math.cos(bold.ph)*.25; bold.y -= .12;
+      if(bold.y < -8){ bold.y = H+8; bold.x = Math.random()*W; }
+      ctx.beginPath(); ctx.arc(bold.x, bold.y, bold.r, 0, Math.PI*2);
+      ctx.fillStyle = "rgba(200,168,106,.5)"; ctx.fill();
+      requestAnimationFrame(loop);
+    })(0);
+  }
+
+  /* lantern */
+  var root = document.documentElement;
+  function moveLantern(x,y){ root.style.setProperty("--mx", x+"px"); root.style.setProperty("--my", y+"px"); }
+  addEventListener("pointermove", function(e){ moveLantern(e.clientX, e.clientY); }, {passive:true});
+  moveLantern(innerWidth/2, innerHeight*0.35);
+
+  /* title breathing micro-variation: each visit breathes at a slightly different tempo */
+  try{
+    var tempo = 6.4 + hash01(Math.floor(Math.random()*1e6))*2.4;
+    document.querySelector("h1").style.animationDuration = tempo.toFixed(2)+"s";
+  }catch(e){}
+
+  /* ============ HUM OF THE GALLERY (generative, degrades with forgetting) ============ */
+  var audioCtx=null, humNodes=null, humming=false;
+  var btn = document.getElementById("soundToggle");
+  btn.addEventListener("click", function(){
+    if(!humming){ startHum(); } else { stopHum(); }
+  });
+  function startHum(){
+    try{
+      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      audioCtx.resume();
+      var g = audioCtx.createGain(); g.gain.value = 0.0;
+      g.connect(audioCtx.destination);
+      var o1 = audioCtx.createOscillator(); o1.type="sine"; o1.frequency.value=55;
+      var o2 = audioCtx.createOscillator(); o2.type="sine"; o2.frequency.value=110.3;
+      var g2 = audioCtx.createGain(); g2.gain.value=.35; o2.connect(g2); g2.connect(g);
+      o1.connect(g); o1.start(); o2.start();
+      // fragmentation: the more forgotten, the more the hum stutters
+      var frag = audioCtx.createGain(); frag.gain.value = 1;
+      var lfo = audioCtx.createOscillator(); lfo.type="square";
+      lfo.frequency.value = 0.15 + (pct/100)*1.6;
+      var lg = audioCtx.createGain();
+      lg.gain.value = Math.min(.8, .15 + (pct/100)*.7);
+      lfo.connect(lg);
+      // use lfo to wobble main gain
+      var base = .05;
+      g.gain.setTargetAtTime(base, audioCtx.currentTime, 2.0);
+      lfo.start();
+      // amplitude wobble via periodic scheduling instead of direct param (compat)
+      var wob = setInterval(function(){
+        if(!humming) { clearInterval(wob); return; }
+        var drop = Math.random() < (pct/100)*.7;
+        g.gain.setTargetAtTime(drop ? .004 : base, audioCtx.currentTime, .4);
+      }, 900);
+      humNodes = {g:g, o1:o1, o2:o2, lfo:lfo, wob:wob};
+      humming = true;
+      btn.setAttribute("aria-pressed","true");
+      btn.innerHTML = "&#9834; silence the hum";
+      showToast(pct > 50 ? "the hum stutters now. so much has been taken." : "the gallery hums. listen while there are still words.");
+    }catch(e){ showToast("this browser declines to hum."); }
+  }
+  function stopHum(){
+    try{
+      if(humNodes){
+        clearInterval(humNodes.wob);
+        humNodes.g.gain.setTargetAtTime(0.0, audioCtx.currentTime, .3);
+        var hn = humNodes;
+        setTimeout(function(){ try{hn.o1.stop();hn.o2.stop();hn.lfo.stop();}catch(e){} }, 900);
+        humNodes = null;
+      }
+    }catch(e){}
+    humming = false;
+    btn.setAttribute("aria-pressed","false");
+    btn.innerHTML = "&#9834; hum of the gallery";
+  }
+})();
+</script>
+</body>
+</html>
