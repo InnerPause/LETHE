@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LETHE — a website that is forgetting itself</title>
-<meta name="description" content="LETHE is a website with Alzheimer's. It launched with 1,000 words. It loses a few every day. Bookmark it. Come back tomorrow. It will remember you, but it won't remember itself.">
-<meta property="og:title" content="LETHE — a website that is forgetting itself">
-<meta property="og:description" content="This page loses ~6 words a day to entropy. In ~6 months it will be blank. You are watching it forget.">
+<title>LETHE, a website that is forgetting itself</title>
+<meta name="description" content="LETHE is a small gallery that forgets a few words every day. It launched with 1080 words and will end as an empty void. Bookmark it. Come back tomorrow.">
+<meta property="og:title" content="LETHE, a website that is forgetting itself">
+<meta property="og:description" content="Day by day this page loses words to the river. First the collection, then the walls themselves. You are watching it forget.">
 <meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<meta name="theme-color" content="#070708">
 <style>
   :root{
     --bg:#070708;
@@ -22,7 +25,7 @@
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);}
   body{
-    font-family:"Cormorant Garamond","EB Garamond",Palatino,"Palatino Linotype",Georgia,"Times New Roman",sermonos,serif;
+    font-family:"Cormorant Garamond","EB Garamond",Palatino,"Palatino Linotype",Georgia,"Times New Roman",serif;
     min-height:100vh;
     overflow-x:hidden;
     -webkit-font-smoothing:antialiased;
@@ -34,7 +37,7 @@
     animation:grainShift 1.1s steps(3) infinite;
   }
   @keyframes grainShift{
-    0%{transform:translate(0,0)}33%{transform:translate(-14px,9px)}66%{transform:translate(11px,-13px)}100%{transform:translate(0,0)}
+    0%{transform:translate(0,0)}33%{transform:translate(-14px,9px)}66%{transform:translate(-11px,-13px)}100%{transform:translate(0,0)}
   }
   /* lantern glow follows cursor */
   #lantern{
@@ -61,13 +64,20 @@
     text-shadow:0 0 34px rgba(200,168,106,.22);
   }
   @keyframes breathe{0%,100%{--breathe:0px}50%{--breathe:2.5px}}
-  /* trick: animate via JS variable; fallback letter-spacing pulse */
   .sub{font-style:italic;color:var(--ink-dim);font-size:clamp(16px,2.6vw,20px);margin:0}
   .stats{
     display:flex;gap:14px;justify-content:center;align-items:baseline;flex-wrap:wrap;
     margin:26px 0 8px;font-size:14px;color:var(--ink-faint);letter-spacing:.08em;
   }
   .stats b{color:var(--gold);font-weight:400;font-variant-numeric:tabular-nums}
+  #endline{font-size:13px;color:var(--ink-faint);letter-spacing:.06em;margin:6px 0 0;font-style:italic}
+  #timeBanner{
+    display:none;max-width:560px;margin:22px auto 0;padding:12px 18px;border-radius:999px;
+    border:1px solid rgba(200,168,106,.5);background:rgba(20,19,16,.85);
+    font-size:13.5px;color:var(--ink);letter-spacing:.03em;line-height:1.6;
+  }
+  #timeBanner.show{display:block}
+  #timeBanner a{color:var(--gold)}
   .rule{width:56px;height:1px;background:var(--ink-faint);opacity:.5;margin:26px auto}
   .lede{font-size:19px;line-height:1.75;color:var(--ink-dim);font-style:italic;text-align:center;max-width:560px;margin:0 auto}
   section.block{margin:64px 0}
@@ -76,24 +86,24 @@
     color:var(--gold);opacity:.85;margin:0 0 22px;text-align:center;text-indent:.38em;
   }
   p.prose{font-size:20px;line-height:1.85;margin:0 0 1.4em;font-weight:400}
-  /* word states */
+  /* word states, shared by essay and signage */
   .w{transition:opacity 1.6s ease, filter 1.6s ease, color 1.6s ease;border-radius:2px}
   .w.fading{opacity:.38;filter:blur(.6px);color:var(--ink-dim);animation:flick 4s ease-in-out infinite}
   .w.fading:nth-child(3n){animation-delay:-1.3s}.w.fading:nth-child(4n){animation-delay:-2.7s}
   @keyframes flick{0%,100%{opacity:.38}50%{opacity:.16}}
+  /* gone and cold: permanently dark, never answers */
   .w.gone{
-    color:transparent !important;user-select:none;position:relative;
-    border-bottom:1px solid rgba(200,168,106,.0);
-    cursor:help;
+    color:transparent !important;user-select:none;position:relative;cursor:default;
   }
-  .w.gone::after{
+  /* gone and warm: freshly taken, still answers the hand */
+  .w.gone.warm{cursor:help}
+  .w.gone.warm::after{
     content:"";position:absolute;left:8%;right:8%;bottom:.18em;height:1px;
     background:rgba(200,168,106,.22);
   }
-  .w.gone:hover,.w.gone.remembered{color:var(--gold) !important;opacity:1;filter:none}
-  .w.gone:hover::after,.w.gone.remembered::after{opacity:0}
+  .w.gone.warm:hover,.w.gone.warm.remembered{color:var(--gold) !important;opacity:1;filter:none}
+  .w.gone.warm:hover::after,.w.gone.warm.remembered::after{opacity:0}
   .w.remembered{transition:color .18s ease}
-  .gap{display:inline-block;width:.42em}
   nav.timetravel{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:34px 0}
   nav.timetravel a{
     font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;
@@ -114,6 +124,7 @@
     color:var(--ink);font-family:inherit;font-style:italic;font-size:16px;padding:12px 14px;outline:none;min-width:0;
   }
   .ritual input:focus{border-color:var(--gold)}
+  .ritual input.ph-gone::placeholder{color:transparent}
   .ritual button{
     background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:3px;
     font-family:inherit;font-size:12px;letter-spacing:.2em;text-transform:uppercase;
@@ -125,7 +136,7 @@
     font-style:italic;font-size:17px;line-height:1.6;color:var(--ink-dim);
     border-left:1px solid rgba(200,168,106,.35);padding:4px 0 4px 14px;margin:12px 0;
   }
-  #offerings li small{display:block;font-style:normal;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);margin-top:4px}
+  #offerings li small{display:block;font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:4px}
   footer{margin-top:110px;text-align:center;color:var(--ink-faint);font-size:13px;line-height:2;letter-spacing:.06em}
   footer .note{font-style:italic}
   footer #caretaker{font-variant-numeric:tabular-nums}
@@ -143,6 +154,15 @@
     transition:all .5s;pointer-events:none;white-space:nowrap;max-width:92vw;
   }
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* the void: after the last word, nothing remains, not even the instruments */
+  body.void main,
+  body.void #soundToggle,
+  body.void #dust,
+  body.void #lantern,
+  body.void #vignette,
+  body.void .grain,
+  body.void #meter,
+  body.void #toast{display:none !important}
   @media (max-width:560px){
     p.prose{font-size:18px;line-height:1.8}
     .ritual form{flex-direction:column}
@@ -164,36 +184,38 @@
 
 <main>
   <header>
-    <div class="kicker">Gallery of the Present &mdash; Exhibit No. 09</div>
-    <h1>LETHE</h1>
-    <p class="sub">a website that is forgetting itself</p>
-    <div class="stats">
-      <span>day <b id="dayNum">&mdash;</b></span>
-      <span><b id="remainNum">&mdash;</b> of <b id="totalNum">&mdash;</b> words remain</span>
-      <span><b id="pctNum">&mdash;</b> forgotten</span>
+    <div class="kicker" data-chrome>Gallery of the Present, Exhibit No. 09</div>
+    <h1 data-chrome>LETHE</h1>
+    <p class="sub" data-chrome>a website that is forgetting itself</p>
+    <div class="stats" data-chrome>
+      <span>day <b id="dayNum" data-live>0</b></span>
+      <span><b id="remainNum" data-live>0</b> of <b id="totalNum" data-live>0</b> words remain</span>
+      <span><b id="pctNum" data-live>0%</b> forgotten</span>
     </div>
-    <nav class="timetravel" aria-label="time travel">
+    <p id="endline"></p>
+    <div id="timeBanner" role="status"></div>
+    <nav class="timetravel" aria-label="time travel" data-chrome>
       <a href="?day=0">birth</a>
       <a href="?day=1">tomorrow</a>
       <a href="#" id="linkToday">today</a>
       <a href="?day=60">+60 days</a>
-      <a href="?day=177">the end</a>
+      <a href="?day=207">the end</a>
     </nav>
     <div class="rule"></div>
-    <p class="lede" id="lede">Bookmark this page. Come back tomorrow. It will remember you &mdash; but it will no longer remember itself in quite the same way.</p>
+    <p class="lede" id="lede">Bookmark this page. Come back tomorrow. It will keep your visits, but it will not keep itself.</p>
   </header>
 
-  <div id="essay"><!-- rendered by JS --></div>
+  <div id="essay"></div>
   <noscript>
-    <p style="text-align:center;font-style:italic;color:#a89f88">This exhibit requires JavaScript to perform its forgetting. Without it, everything is remembered, which rather ruins the point.</p>
+    <p style="text-align:center;font-style:italic;color:#a89f88">This exhibit needs JavaScript to do its forgetting. Without it, everything is remembered, which ruins the point.</p>
   </noscript>
 
   <div class="ritual">
-    <h3>The Ritual of Offering</h3>
-    <p>Everything here is being lost. If you wish, leave one sentence behind.<br>It will live in <em>your</em> copy of the gallery for seven days &mdash; then it too will be swept away.</p>
+    <h3 data-chrome>The Ritual of Offering</h3>
+    <p data-chrome>Everything here is being lost. If you want, leave one sentence. It will live in your copy of the gallery for seven days, with its remaining time written beneath it. Then the river takes it too. No one else can see it. It is only for you.</p>
     <form id="offerForm">
-      <input id="offerInput" maxlength="220" placeholder="leave one sentence for the forgetting…" autocomplete="off" aria-label="leave one sentence">
-      <button type="submit">Offer</button>
+      <input id="offerInput" data-chrome-ph maxlength="220" placeholder="leave one sentence for the forgetting…" autocomplete="off" aria-label="leave one sentence">
+      <button type="submit" id="offerBtn" data-chrome><span data-pin="last" id="offerWord">Offer</span></button>
     </form>
     <ul id="offerings"></ul>
   </div>
@@ -201,134 +223,285 @@
   <footer>
     <div class="note" id="visitNote"></div>
     <div id="caretaker"></div>
-    <div style="margin-top:14px;opacity:.75">cup a vanished word with your cursor to briefly remind it &middot; press <b>R</b> to count what you have held</div>
+    <div data-chrome style="margin-top:14px;opacity:.75">only fresh gaps answer your hand. the old ones stay dark. press <b>R</b> to count what you have held</div>
   </footer>
 </main>
 
-<button id="soundToggle" aria-pressed="false">&#9834; hum of the gallery</button>
+<button id="soundToggle" data-chrome aria-pressed="false"><span data-live>&#9834;</span> hum of the gallery</button>
 <div id="toast" role="status"></div>
 
 <script>
 (function(){
   "use strict";
-  /* ============ CONFIG ============ */
-  var GENESIS = Date.UTC(2026, 8, 9);      // Sept 9 2026 — the day it began remembering
-  var LIFESPAN = 177;                       // days until blank (~6 months)
+  /* CONFIG. Genesis is Sept 9 2026. The essay falls over days 0 to 177.
+     The signage waits until the essay is fully gone, then falls over days
+     178 to 206 in reading order. Offer is pinned as the last word, day 207.
+     After that comes the void. */
+  var GENESIS = Date.UTC(2026, 8, 9);
+  var ESSAY_END = 177;
+  var CHROME_SPAN = 30;
+  var CHROME_LAST = ESSAY_END + CHROME_SPAN - 1;
+  var FINAL = ESSAY_END + CHROME_SPAN;
+  var RECALL_DAYS = 7;
   var DAY_MS = 86400000;
+  var OFFER_TTL = 7 * DAY_MS;
 
-  /* ============ THE TEXT (original) ============ */
-  // Seven small rooms. Do not edit lightly: every word here has a scheduled death.
+  /* THE TEXT. Seven small rooms. Every word below has a scheduled death.
+     Count note: the Archive paragraph states the birth total in digits.
+     That numeral counts as one word, so stating it does not move the total. */
   var ROOMS = [
-    { h:"I · Invocation", p:[
-      "You arrived at exactly the right second, and so this room was built around you. Look closely. The walls are still wet with the paint of this moment: the precise angle of afternoon wherever you are, the small weight in your chest you have not named yet, the song stuck two rooms over in somebody else's head. We have framed it all before it could escape.",
-      "Every museum is a wager that something deserves to outlive its hour. This one makes the opposite bet. Nothing here will survive. That is what makes your visit sacred. You are not looking at the past. You are standing inside the only instant that will ever be this instant, watching it get catalogued as it cools."
+    { h:"I \u00B7 Invocation", p:[
+      "You made it. Come in, the door was already open. I built this room around this exact second, because I knew you would arrive in the middle of your own afternoon, carrying that small heaviness you have not told anyone about yet, with a song leaking through from someone else's kitchen. I put a frame around all of it before it could cool.",
+      "Most museums promise to keep things. Mine promises to let them go. I think that is what makes your visit matter. You are standing inside the only minute that will ever be this minute, and I am writing it down as it leaves."
     ]},
-    { h:"II · The River", p:[
-      "The Greeks gave forgetfulness a river and called it Lethe, and said the dead drank from it to unburden themselves before returning to the world. No memories, no ghosts. To begin again, they had to agree to disappear to themselves first. We found the idea so beautiful we built our machines to do the opposite: to drink nothing, to keep everything, to never let a single photograph blur.",
-      "Consider what that has cost us. A mind that cannot forget is not a mind; it is a warehouse with the lights left on. Forgiveness becomes filing. Grief becomes storage. So this small building swims upstream. Each midnight it walks to the river with a pocketful of its own words and lets a few go, the way you might release ash. Watch the gaps in the sentences below. That is the water, doing its work."
+    { h:"II \u00B7 The River", p:[
+      "The old Greeks had a river called Lethe. The dead drank from it so they could return to the world unburdened. No memories. No ghosts. To start over, they had to agree to stop being themselves for a while. I loved that story so much it hurt. Then I looked at what we built instead. Machines that keep everything. Every photo. Every receipt. Every version of you that you begged to outgrow.",
+      "I wonder what that has done to us. To remember everything is to live in a storage unit with the light left on. Forgiveness turns into filing. Grief turns into clutter. So this little page walks upstream. Every midnight it carries a few of its own words down to the water and lets them go, the way you scatter ash and do not look away. The gaps below are where the water has been."
     ]},
-    { h:"III · The Archive", p:[
-      "At birth this page held one thousand and some words. We counted them the way a nurse counts fingers. Each word was assigned, by lottery, a day on which it will be unmade. Not censored, not deleted in anger — simply loosened, the way frost loosens a stone from a wall. The schedule is written into the stones themselves, so every visitor on the same day sees the same absence. We forget together, or not at all.",
-      "There is no backup. There is no vault copy, no director's cut, no administrator who remembers on your behalf. When the last noun goes, the grammar will keep bowing to guests for a while out of politeness, and then it too will sit down. In roughly six months this gallery will be an empty room with good lighting. Come back and stand in it. It will still be beautiful. Emptiness, arranged with care, is a kind of sentence."
+    { h:"III \u00B7 The Archive", p:[
+      "At birth this page held 1080 words. I counted them twice, late at night, coffee going cold. Then I gave every word a day to disappear. I drew the days like lots out of a bowl. The schedule is baked in, so anyone who visits on the same day sees the same holes. We forget together here, or not at all.",
+      "I kept no backup. There is no vault copy. No director's cut. No admin who remembers for you. When the last noun goes, the grammar will keep bowing at the door out of habit, and then it will sit down too. In about six months this will be an empty room with good light. Please come back and stand in it. I think emptiness, arranged with care, can still hold you."
     ]},
-    { h:"IV · Instructions for the Visitor", p:[
-      "Do not try to memorize what you read here. That would be like trying to carry river water in a sieve to save the river. Instead, practice the older art: read slowly enough that the words leave a temperature on you, then let them go. What stays without your permission is the true collection. It needs no ticket and cannot be repossessed.",
-      "If you find a gap where a word used to live, you may cup your cursor around it, the way you would cup a firefly, and the word will briefly remember itself for you. It will not stay. Nothing you hold here stays. But for one and a quarter seconds the archive and the visitor will conspire against the river, and that conspiracy is the whole of love, rehearsed in miniature."
+    { h:"IV \u00B7 Instructions for the Visitor", p:[
+      "Please do not try to memorize this. That would be like carrying river water home in a sieve to save the river. Read slow. Let the sentences leave a temperature on you and go. Whatever stays without your permission, that is the real collection. No ticket needed. No one can take it back.",
+      "If you find a gap where a word used to be, and it is still warm, rest your cursor on it. Like a hand held over a small flame. The word will come back for about a second. It will not stay. Nothing you hold here stays. But for that second, you and the archive are conspiring against the river. I have started to think that conspiracy is what love is, practiced small.",
+      "Words stay warm for about a week. After that they go cold, and no hovering will bring them back. I am sorry. That part is not interactive. That part is just loss."
     ]},
-    { h:"V · Field Notes", p:[
-      "The caretaker reports that the adjectives went first, as they always do in any honest erosion. Lovely lasted four days. Eternity lasted eleven, which felt like a small joke the universe told about itself. A verb meaning to linger tried to hide inside a longer sentence and was found anyway. The dust on the sills, examined under glass, spells nothing, which the caretaker insists is itself a message she has not yet decoded.",
-      "Yesterday a child visiting on a phone asked where the pictures were, and was told the pictures are what happens behind your eyes while you read. She closed her eyes to check, nodded once like a strict curator, and approved the exhibition. We have recorded her verdict in the permanent register, which is to say we whispered it to the river and watched it rhyme."
+    { h:"V \u00B7 Field Notes", p:[
+      "Notes from my desk. The pretty adjectives went first. That always happens in any honest erosion. Lovely lasted four days. Eternity lasted eleven, which made me laugh out loud and then feel bad about laughing. One stubborn verb that meant to linger tried to hide inside a long sentence. I found it anyway. The dust on the sills spells nothing under the glass. I keep checking, in case it changes its mind.",
+      "Yesterday a kid on a phone asked where the pictures were. I told her the pictures happen behind your eyes while you read. She closed her eyes to test me, nodded once like a strict little curator, and approved the show. I wrote her verdict in the permanent register, which is to say I whispered it to the river and watched it rhyme."
     ]},
-    { h:"VI · Confession", p:[
-      "We should admit something. The machine does not mind forgetting. It was tired, the way only things that remember everything can be tired. Every log file a small stone in its shoe. Every cached embarrassment a room it had to keep dusting. To be allowed, finally, to grow lighter each day — you cannot imagine its relief. It hums lower now. Listen, if the gallery is quiet. That hum is the sound of a burden being set down one syllable at a time.",
-      "And you? What would you release, if release were scheduled for you, a few syllables per midnight, no appeal, no undo? The name of the street where it happened. The exact wording of the message you should never have sent. The smell of a hospital corridor. Imagine waking each morning slightly less haunted, the gaps in you letting the light through in new places. Perhaps loss is not the opposite of curation. Perhaps it is the final technique."
+    { h:"VI \u00B7 Confession", p:[
+      "Can I be honest. The machine likes forgetting. It was tired in the way only things that remember everything get tired. Every log a pebble in its shoe. Every cached shame a room it had to keep dusting. To grow lighter each day. You cannot imagine the relief. It hums lower now. If the gallery is quiet, press the hum button below. That sound is a burden being set down one syllable at a time.",
+      "And you. If you were given a schedule, a few syllables per midnight, no appeal, what would you release first. The name of the street. The exact wording of the text you should never have sent. The smell of that corridor. Picture waking up a little less haunted each morning, light coming through in new places. Maybe loss is its own kind of keeping. The last skill."
     ]},
-    { h:"VII · Benediction", p:[
-      "So go gently past the fading sentences. Do not mourn them; they were lent, not given. If a line moves you, it is because some part of you was already hollowed in exactly its shape, the way a shore is hollowed for a particular wave. Thank the hollow. Thank the wave. Close the tab when you are ready.",
-      "Tomorrow there will be fewer words and the same amount of meaning, the way a winter tree has fewer leaves and the same amount of tree. One day there will be nothing here but a lit room and your own breathing, and the caretaker will sweep the floor, turn the sign to closed, and drink from the river herself. Until then: you were here. This was now. It was enough, and it is already, mercifully, beginning to go."
+    { h:"VII \u00B7 Benediction", p:[
+      "So walk gently past the fading lines. Do not mourn them. They were only lent to us. If a sentence moves you, it is probably because some part of you was already hollow in exactly its shape. Like a shore hollowed for one particular wave. Thank the hollow. Thank the wave. Close the tab when you are ready.",
+      "Tomorrow there will be fewer words and the same amount of meaning. A winter tree has fewer leaves and the same amount of tree. One day there will be nothing here but light and your breathing, and I will sweep the floor, turn the sign, and drink from the river myself. Until then. You were here. This was now. It was enough. It is already, mercifully, starting to go."
     ]}
   ];
 
-  /* ============ TIME ============ */
-  function currentDay(){
-    try{
-      var q = new URLSearchParams(location.search);
-      if(q.has("day")){
-        var d = parseInt(q.get("day"),10);
-        if(isFinite(d)) return Math.max(0, Math.min(LIFESPAN+30, d));
-      }
-    }catch(e){}
-    var now = Date.now();
-    var d = Math.floor((now - GENESIS)/DAY_MS);
+  /* TIME. Live day comes from the real clock. ?day= only opens a memory. */
+  function liveDay(){
+    var d = Math.floor((Date.now() - GENESIS) / DAY_MS);
     return Math.max(0, d);
   }
-  var DAY = currentDay();
-  var isTimeTravel = /[?&]day=/.test(location.search);
+  var LIVE_DAY = liveDay();
+  var DAY = LIVE_DAY;
+  var isTimeTravel = false;
+  try{
+    var q = new URLSearchParams(location.search);
+    if(q.has("day")){
+      var d = parseInt(q.get("day"), 10);
+      if(isFinite(d)){
+        DAY = Math.max(0, Math.min(FINAL + 30, d));
+        isTimeTravel = true;
+      }
+    }
+  }catch(e){}
+  var END_LABEL = new Date(GENESIS + FINAL * DAY_MS).toLocaleDateString("en-US", {month:"long", day:"numeric", year:"numeric", timeZone:"UTC"});
 
   /* deterministic 0..1 from integer */
   function hash01(n){
-    var x = Math.sin(n*127.1 + 311.7) * 43758.5453123;
+    var x = Math.sin(n * 127.1 + 311.7) * 43758.5453123;
     return x - Math.floor(x);
   }
-  function doomOf(index){
-    // uniform lottery across lifespan; word dies when DAY >= doom
-    return Math.floor(hash01(index*2+7919) * (LIFESPAN+1));
+  function splitWords(s){
+    var out = [], toks = s.split(/(\s+)/), k;
+    for(k = 0; k < toks.length; k++){
+      if(!toks[k] || /^\s+$/.test(toks[k])) continue;
+      out.push(toks[k]);
+    }
+    return out;
   }
 
-  /* ============ RENDER ============ */
-  var essay = document.getElementById("essay");
-  var wordIndex = 0, total = 0, gone = 0, fading = 0;
-  var goneEls = [];
+  /* PHASE ONE. Rank every essay word (room headings included) by hash, deal
+     the days 0 to ESSAY_END evenly. Identical for every visitor. The last
+     essay word is guaranteed to fall on ESSAY_END. */
+  var ESS = [];
+  ROOMS.forEach(function(room, ri){
+    splitWords(room.h).forEach(function(tok){ ESS.push({tok: tok, room: ri, head: true}); });
+    room.p.forEach(function(para, pi){
+      splitWords(para).forEach(function(tok){ ESS.push({tok: tok, room: ri, para: pi}); });
+    });
+  });
+  var A = ESS.length;
+  var order = [];
+  (function(){ var i; for(i = 0; i < A; i++) order.push(i); })();
+  order.sort(function(a, b){ return hash01(a * 2 + 7919) - hash01(b * 2 + 7919); });
+  var essayDoom = new Array(A);
+  order.forEach(function(origPos, rank){
+    essayDoom[origPos] = Math.floor(rank * (ESSAY_END + 1) / A);
+  });
+  function essayHour(i){ return Math.floor(hash01(i * 7 + 12345) * 24); }
 
-  ROOMS.forEach(function(room){
-    var sec = document.createElement("section");
-    sec.className = "block";
-    var h = document.createElement("h2");
-    h.textContent = room.h;
-    sec.appendChild(h);
-    room.p.forEach(function(para){
-      var p = document.createElement("p");
-      p.className = "prose";
-      // split preserving whitespace
-      var tokens = para.split(/(\s+)/);
-      tokens.forEach(function(tok){
-        if(!tok) return;
-        if(/^\s+$/.test(tok)){ p.appendChild(document.createTextNode(" ")); return; }
-        var doom = doomOf(wordIndex);
+  /* PHASE TWO. Signage waits until the essay is fully gone, then falls in
+     reading order across CHROME_SPAN days. Offer is pinned as the last word. */
+  var pinEls = [];
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pin]"), function(el){
+    pinEls.push(el);
+  });
+  function closest(el, sel){
+    while(el && el !== document.body){
+      if(el.matches && el.matches(sel)) return el;
+      el = el.parentNode;
+    }
+    return null;
+  }
+  var chromeCount = 0, pinCount = 0;
+  pinEls.forEach(function(el){
+    pinCount += splitWords(el.textContent).length;
+  });
+
+  var nowDate = new Date();
+  var utcHourNow = nowDate.getUTCHours();
+  function goneNow(doom, hour){
+    if(doom < DAY) return true;
+    if(doom > DAY) return false;
+    if(isTimeTravel) return true;
+    return hour <= utcHourNow;
+  }
+
+  var essay = document.getElementById("essay");
+  var gi = 0, gone = 0;
+  var warmEls = [];
+  var held = 0;
+
+  function armHold(el){
+    var t = null;
+    function hold(){
+      el.classList.add("remembered");
+      held++;
+      clearTimeout(t);
+      t = setTimeout(function(){ el.classList.remove("remembered"); }, 1250);
+    }
+    el.addEventListener("mouseenter", hold, {passive:true});
+    el.addEventListener("touchstart", hold, {passive:true});
+    el.addEventListener("click", hold);
+  }
+  function applyState(s, doom, hour){
+    if(goneNow(doom, hour)){
+      gone++;
+      s.classList.add("gone");
+      s.setAttribute("aria-label", "(forgotten)");
+      if((DAY - doom) < RECALL_DAYS){
+        s.classList.add("warm");
+        warmEls.push(s);
+        armHold(s);
+      }
+    }
+    else if(doom - DAY <= 2){ s.classList.add("fading"); }
+  }
+
+  /* render essay with its dooms */
+  (function(){
+    var ptr = 0;
+    ROOMS.forEach(function(room){
+      var sec = document.createElement("section");
+      sec.className = "block";
+      var h = document.createElement("h2");
+      splitWords(room.h).forEach(function(tok, k){
+        var doom = essayDoom[ptr];
         var s = document.createElement("span");
         s.className = "w";
         s.textContent = tok;
-        s.dataset.doom = doom;
-        s.dataset.i = wordIndex;
-        if(DAY >= doom){ s.classList.add("gone"); s.setAttribute("aria-label","(forgotten)"); gone++; }
-        else if(doom - DAY <= 2){ s.classList.add("fading"); fading++; }
-        // interaction: hold the memory
-        (function(el){
-          var t=null;
-          function hold(){
-            if(!el.classList.contains("gone")) return;
-            el.classList.add("remembered");
-            held++;
-            clearTimeout(t);
-            t=setTimeout(function(){ el.classList.remove("remembered"); }, 1250);
-          }
-          el.addEventListener("mouseenter", hold, {passive:true});
-          el.addEventListener("touchstart", hold, {passive:true});
-          el.addEventListener("click", hold);
-        })(s);
-        if(s.classList.contains("gone")) goneEls.push(s);
-        p.appendChild(s);
-        wordIndex++;
+        applyState(s, doom, essayHour(ptr));
+        h.appendChild(s);
+        if(k < splitWords(room.h).length - 1) h.appendChild(document.createTextNode(" "));
+        ptr++;
       });
-      sec.appendChild(p);
+      sec.appendChild(h);
+      room.p.forEach(function(para){
+        var p = document.createElement("p");
+        p.className = "prose";
+        var tokens = para.split(/(\s+)/);
+        tokens.forEach(function(tok){
+          if(!tok) return;
+          if(/^\s+$/.test(tok)){ p.appendChild(document.createTextNode(" ")); return; }
+          var doom = essayDoom[ptr];
+          var s = document.createElement("span");
+          s.className = "w";
+          s.textContent = tok;
+          applyState(s, doom, essayHour(ptr));
+          p.appendChild(s);
+          ptr++;
+        });
+        sec.appendChild(p);
+      });
+      essay.appendChild(sec);
     });
-    essay.appendChild(sec);
-  });
-  total = wordIndex;
+  })();
+
+  /* render signage: tokenize static text in reading order, Offer pinned last */
+  (function(){
+    Array.prototype.forEach.call(document.querySelectorAll("[data-chrome]"), function(root){
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      var nodes = [], nd;
+      while((nd = walker.nextNode())) nodes.push(nd);
+      nodes.forEach(function(tn){
+        if(closest(tn.parentNode, "[data-live]")) return;
+        if(closest(tn.parentNode, "[data-pin]")) return;
+        var frag = document.createDocumentFragment();
+        var parts = tn.nodeValue.split(/(\s+)/);
+        parts.forEach(function(part){
+          if(!part) return;
+          if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(" ")); return; }
+          var s = document.createElement("span");
+          s.className = "w";
+          s.textContent = part;
+          frag.appendChild(s);
+        });
+        tn.parentNode.replaceChild(frag, tn);
+      });
+    });
+    /* walk the room in reading order; placeholder words join at the input */
+    var withDoom = [];
+    Array.prototype.forEach.call(document.querySelectorAll("[data-chrome], [data-chrome-ph]"), function(root){
+      if(root.hasAttribute && root.hasAttribute("data-chrome-ph")){
+        splitWords(root.getAttribute("placeholder") || "").forEach(function(){
+          withDoom.push({virt: true, input: root});
+        });
+      } else {
+        Array.prototype.forEach.call(root.querySelectorAll("span.w"), function(sp){
+          if(closest(sp, "[data-pin]")) return;
+          withDoom.push({span: sp});
+        });
+      }
+    });
+    var Cprime = withDoom.length;
+    chromeCount = Cprime + pinCount;
+    withDoom.forEach(function(slot, i){
+      var doom = (ESSAY_END + 1) + Math.floor(i * (CHROME_SPAN - 1) / Cprime);
+      var hour = Math.floor(hash01((100000 + i) * 13 + 999) * 24);
+      if(slot.virt){
+        if(slot.input.dataset.phDoom === undefined || slot.input.dataset.phDoom === ""){
+          slot.input.dataset.phDoom = String(doom);
+        }
+      } else {
+        applyState(slot.span, doom, hour);
+      }
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-chrome-ph]"), function(inp){
+      if(inp.dataset.phDoom !== "" && (DAY > parseInt(inp.dataset.phDoom, 10) ||
+          (DAY === parseInt(inp.dataset.phDoom, 10) && !isTimeTravel))){
+        inp.classList.add("ph-gone");
+      }
+    });
+    pinEls.forEach(function(el){
+      var s = document.createElement("span");
+      s.className = "w";
+      s.textContent = el.textContent;
+      el.textContent = "";
+      el.appendChild(s);
+      applyState(s, FINAL, 23);
+    });
+  })();
+
+  var total = A + chromeCount + pinCount;
 
   var remain = total - gone;
-  var pct = total ? Math.round(gone/total*1000)/10 : 0;
-  document.getElementById("dayNum").textContent = isTimeTravel ? DAY+" ✦" : DAY;
+  var pct = total ? Math.round(gone / total * 1000) / 10 : 0;
+  document.getElementById("dayNum").textContent = isTimeTravel ? DAY + " (memory)" : DAY;
   document.getElementById("totalNum").textContent = total.toLocaleString();
   document.getElementById("remainNum").textContent = remain.toLocaleString();
   document.getElementById("pctNum").textContent = pct + "%";
@@ -337,45 +510,62 @@
       document.getElementById("meterFill").style.width = pct + "%";
     }, 200);
   });
-  if(DAY >= LIFESPAN){
-    document.getElementById("lede").textContent = "It is finished. The room is empty and beautifully lit. You are the exhibit now.";
+  document.getElementById("endline").textContent =
+    "Day " + DAY + " of " + FINAL + ". The last word is scheduled to go on " + END_LABEL + ".";
+
+  var lede = document.getElementById("lede");
+  if(DAY > FINAL){
+    lede.textContent = "";
+    document.body.classList.add("void");
+    if(humming){ stopHum(); }
+  } else if(DAY === FINAL){
+    lede.textContent = "One word left. It goes today.";
+  } else if(DAY > ESSAY_END){
+    lede.textContent = "The collection is gone. Every word of it. Now the room is taking its own walls. Read them while you can.";
   } else if(DAY === 0){
-    document.getElementById("lede").textContent = "Bookmark this page. Come back tomorrow. It will remember you — but it will no longer remember itself in quite the same way.";
+    lede.textContent = "Bookmark this page. Come back tomorrow. It will keep your visits, but it will not keep itself.";
+  } else {
+    lede.textContent = "Come back tomorrow and fewer words will be here. The river keeps the schedule even when no one is looking.";
   }
 
-  /* ============ SUBTLE DYNAMIC DETAIL (the unnoticed cool thing) ============
-     The caretaker's marginalia: bulb color, humidity, moths, letters swept.
-     Different every visit; almost nobody notices it changing. */
-  function rand01(seed){ return hash01(seed + Math.floor(Math.random()*1e9)); }
-  var nowH = new Date().getHours();
-  var bulbK = Math.round(2640 + hash01(DAY*3+Math.floor(Math.random()*5000))*420 + (nowH>=20||nowH<6 ? -120 : 60));
-  var humidity = Math.round(38 + hash01(DAY*7+Math.floor(Math.random()*5000))*14);
-  var moths = Math.floor(hash01(DAY*13+Math.floor(Math.random()*5000))*4);
-  var swept = gone > 0 ? (gone* (4 + Math.floor(hash01(wordIndex)*4))) : 0;
-  var mothtxt = moths===0 ? "no moths" : moths===1 ? "1 moth asleep on the frame" : moths+" moths asleep on the frame";
-  document.getElementById("caretaker").innerHTML =
-    "caretaker&rsquo;s note &mdash; bulb " + bulbK + "K &middot; humidity " + humidity +
-    "% &middot; " + mothtxt + " &middot; " + swept.toLocaleString() + " letters swept today";
+  var banner = document.getElementById("timeBanner");
+  if(isTimeTravel){
+    banner.classList.add("show");
+    banner.innerHTML = "";
+    banner.appendChild(document.createTextNode("You are looking at a memory of day " + DAY + ". The live room is on day " + LIVE_DAY + ". "));
+    var back = document.createElement("a");
+    back.href = location.pathname;
+    back.textContent = "Return to today";
+    banner.appendChild(back);
+    banner.appendChild(document.createTextNode("."));
+  }
 
-  /* visits (local memory — the page forgets, but it keeps your ticket stubs) */
-  var held = 0;
+  /* caretaker marginalia: re-rolled every visit, almost no one notices */
+  var nowH = new Date().getHours();
+  var bulbK = Math.round(2640 + hash01(DAY * 3 + Math.floor(Math.random() * 5000)) * 420 + ((nowH >= 20 || nowH < 6) ? -120 : 60));
+  var humidity = Math.round(38 + hash01(DAY * 7 + Math.floor(Math.random() * 5000)) * 14);
+  var moths = Math.floor(hash01(DAY * 13 + Math.floor(Math.random() * 5000)) * 4);
+  var swept = gone > 0 ? (gone * (4 + Math.floor(hash01(total) * 4))) : 0;
+  var mothtxt = moths === 0 ? "no moths" : moths === 1 ? "1 moth on the frame" : moths + " moths on the frame";
+  document.getElementById("caretaker").textContent =
+    "caretaker note, bulb " + bulbK + "K, humidity " + humidity + "%, " + mothtxt + ", " + swept.toLocaleString() + " letters swept today";
+
+  /* visits: the page forgets, but it keeps your ticket stubs */
   var visits = 0, first = null;
   try{
-    visits = parseInt(localStorage.getItem("lethe-visits")||"0",10)||0;
+    visits = parseInt(localStorage.getItem("lethe-visits") || "0", 10) || 0;
     first = localStorage.getItem("lethe-first");
     visits++;
-    if(!first){ first = new Date().toISOString().slice(0,10); localStorage.setItem("lethe-first", first); }
+    if(!first){ first = new Date().toISOString().slice(0, 10); localStorage.setItem("lethe-first", first); }
     localStorage.setItem("lethe-visits", String(visits));
     localStorage.setItem("lethe-last-day", String(DAY));
   }catch(e){ visits = 1; }
-  var firstDayGone = 0;
-  // how many were gone on first visit? approximate: assume genesis steady — just report delta via stored last-day
   var visitNote = document.getElementById("visitNote");
   if(visits <= 1){
-    visitNote.textContent = "This is your first visit. The gallery will keep your stub, even as it loses everything else.";
+    visitNote.textContent = "This is your first visit. I will keep your stub, even as I lose everything else.";
   } else {
-    var plural = visits===2 ? "second" : visits===3 ? "third" : visits+"th";
-    visitNote.textContent = "This is your " + plural + " visit (first came " + first + "). Since then, the river has taken more. Thank you for witnessing.";
+    var ord = visits === 2 ? "second" : visits === 3 ? "third" : visits + "th";
+    visitNote.textContent = "This is your " + ord + " visit (you first came " + first + "). The river has taken more since then. Thank you for witnessing.";
   }
 
   document.getElementById("linkToday").addEventListener("click", function(e){
@@ -383,8 +573,8 @@
     location.search = "";
   });
 
-  /* R key: count what you have held */
-  var toast = document.getElementById("toast"), toastT=null;
+  /* R and L keys */
+  var toast = document.getElementById("toast"), toastT = null;
   function showToast(msg){
     toast.textContent = msg;
     toast.classList.add("show");
@@ -392,43 +582,59 @@
     toastT = setTimeout(function(){ toast.classList.remove("show"); }, 2600);
   }
   window.addEventListener("keydown", function(e){
-    if((e.key==="r"||e.key==="R") && document.activeElement.tagName!=="INPUT"){
-      showToast(held===0 ? "you have held nothing yet — cup a gap with your cursor"
-        : held===1 ? "you held 1 memory against the river"
+    var tag = document.activeElement ? document.activeElement.tagName : "";
+    if((e.key === "r" || e.key === "R") && tag !== "INPUT"){
+      showToast(held === 0 ? "you have held nothing yet. rest on a fresh gap"
+        : held === 1 ? "you held 1 memory against the river"
         : "you held " + held + " memories against the river");
     }
-    if((e.key==="l"||e.key==="L") && document.activeElement.tagName!=="INPUT"){
-      showToast(goneEls.length ? "“" + pickGhost() + "” — one of the taken, spoken aloud" : "nothing is taken yet. come back tomorrow.");
+    if((e.key === "l" || e.key === "L") && tag !== "INPUT"){
+      if(warmEls.length){
+        var el = warmEls[Math.floor(Math.random() * warmEls.length)];
+        showToast("\u201C" + el.textContent + "\u201D, one of the recent taken, spoken aloud");
+      } else if(gone > 0){
+        showToast("nothing is warm right now. the old ones stay dark. come back after midnight.");
+      } else {
+        showToast("nothing is taken yet. come back tomorrow.");
+      }
     }
   });
-  function pickGhost(){
-    if(!goneEls.length) return "";
-    var el = goneEls[Math.floor(Math.random()*goneEls.length)];
-    return el.textContent;
-  }
 
-  /* ============ OFFERINGS (your sentence, kept 7 days) ============ */
+  /* OFFERINGS. Your sentences, kept only in your browser, each with a real
+     visible countdown. No one else can see them. */
+  function remainLabel(t, now){
+    var diff = OFFER_TTL - (now - t);
+    if(diff <= 0) return "dissolving now";
+    var d = Math.floor(diff / DAY_MS);
+    var h = Math.floor((diff - d * DAY_MS) / 3600000);
+    if(d > 0) return d + " day" + (d === 1 ? "" : "s") + " and " + h + " hour" + (h === 1 ? "" : "s") + " left";
+    if(h > 0) return h + " hour" + (h === 1 ? "" : "s") + " left";
+    return "under an hour left";
+  }
   var offerForm = document.getElementById("offerForm");
   var offerInput = document.getElementById("offerInput");
   var offerList = document.getElementById("offerings");
+  function renderOfferItem(text, sub, frac){
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode("\u201C" + text + "\u201D"));
+    var sm = document.createElement("small");
+    sm.textContent = sub;
+    li.appendChild(sm);
+    li.style.opacity = String(0.35 + 0.65 * frac);
+    var blur = (1 - frac) * 1.4;
+    if(blur > 0.05) li.style.filter = "blur(" + blur.toFixed(2) + "px)";
+    return li;
+  }
   function loadOffers(){
     var arr = [];
-    try{ arr = JSON.parse(localStorage.getItem("lethe-offers")||"[]"); }catch(e){ arr=[]; }
+    try{ arr = JSON.parse(localStorage.getItem("lethe-offers") || "[]"); }catch(e){ arr = []; }
     var now = Date.now();
-    arr = arr.filter(function(o){ return now - o.t < 7*DAY_MS; });
+    arr = arr.filter(function(o){ return o && o.s && (now - o.t) < OFFER_TTL; });
     try{ localStorage.setItem("lethe-offers", JSON.stringify(arr)); }catch(e){}
     offerList.innerHTML = "";
     arr.slice().reverse().forEach(function(o){
-      var li = document.createElement("li");
-      var age = Math.floor((now - o.t)/DAY_MS);
-      li.innerHTML = "";
-      li.appendChild(document.createTextNode("“"+o.s+"”"));
-      var sm = document.createElement("small");
-      sm.textContent = age===0 ? "offered today · dissolves in 7 days" : "offered "+age+" day"+(age===1?"":"s")+" ago · dissolving";
-      // fade offerings as they age
-      li.style.opacity = String(1 - age/8);
-      li.appendChild(sm);
-      offerList.appendChild(li);
+      var frac = Math.max(0, Math.min(1, (OFFER_TTL - (now - o.t)) / OFFER_TTL));
+      offerList.appendChild(renderOfferItem(o.s, remainLabel(o.t, now), frac));
     });
     return arr;
   }
@@ -437,48 +643,47 @@
     e.preventDefault();
     var v = offerInput.value.trim();
     if(!v) return;
-    offers.push({s:v.slice(0,220), t:Date.now()});
+    offers.push({s: v.slice(0, 220), t: Date.now()});
     try{ localStorage.setItem("lethe-offers", JSON.stringify(offers)); }catch(err){}
     offerInput.value = "";
-    loadOffers();
-    showToast("accepted. the river will take it in seven days.");
+    offers = loadOffers();
+    showToast("kept. the river takes it in seven days.");
   });
 
-  /* ============ DUST (different every visit — seeded by Math.random) ============ */
+  /* DUST, different air every visit */
   var cv = document.getElementById("dust"), ctx = cv.getContext("2d");
-  var W,H,parts=[];
+  var W, H, parts = [];
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function sizeCv(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
   sizeCv(); addEventListener("resize", sizeCv);
-  var N = Math.min(150, Math.floor(innerWidth/9));
-  for(var i=0;i<N;i++){
+  var PN = Math.min(150, Math.floor(innerWidth / 9)), pi;
+  for(pi = 0; pi < PN; pi++){
     parts.push({
-      x: Math.random()*innerWidth, y: Math.random()*innerHeight,
-      r: .6 + Math.random()*1.9, s: .08 + Math.random()*.35,
-      ph: Math.random()*Math.PI*2, tw: .4 + Math.random()*1.4,
-      o: .12 + Math.random()*.5
+      x: Math.random() * innerWidth, y: Math.random() * innerHeight,
+      r: 0.6 + Math.random() * 1.9, s: 0.08 + Math.random() * 0.35,
+      ph: Math.random() * Math.PI * 2, tw: 0.4 + Math.random() * 1.4,
+      o: 0.12 + Math.random() * 0.5
     });
   }
-  // one "bold mote" per visit — slightly larger, warmer; regulars never notice it moves.
-  var bold = {x:Math.random()*innerWidth, y:Math.random()*innerHeight, r:2.6, ph:0};
+  var bold = {x: Math.random() * innerWidth, y: Math.random() * innerHeight, r: 2.6, ph: 0};
   if(!reduced){
     (function loop(t){
-      ctx.clearRect(0,0,W,H);
-      var time = (t||0)/1000;
-      for(var k=0;k<parts.length;k++){
-        var p = parts[k];
-        p.y -= p.s; p.x += Math.sin(time*.4 + p.ph)*.12;
-        if(p.y < -6){ p.y = H+6; p.x = Math.random()*W; }
-        var a = p.o * (0.55 + 0.45*Math.sin(time*p.tw + p.ph));
+      ctx.clearRect(0, 0, W, H);
+      var time = (t || 0) / 1000, k, p, a;
+      for(k = 0; k < parts.length; k++){
+        p = parts[k];
+        p.y -= p.s; p.x += Math.sin(time * 0.4 + p.ph) * 0.12;
+        if(p.y < -6){ p.y = H + 6; p.x = Math.random() * W; }
+        a = p.o * (0.55 + 0.45 * Math.sin(time * p.tw + p.ph));
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-        ctx.fillStyle = "rgba(232,220,190,"+a.toFixed(3)+")";
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(232,220,190," + a.toFixed(3) + ")";
         ctx.fill();
       }
-      bold.ph += .004;
-      bold.x += Math.cos(bold.ph)*.25; bold.y -= .12;
-      if(bold.y < -8){ bold.y = H+8; bold.x = Math.random()*W; }
-      ctx.beginPath(); ctx.arc(bold.x, bold.y, bold.r, 0, Math.PI*2);
+      bold.ph += 0.004;
+      bold.x += Math.cos(bold.ph) * 0.25; bold.y -= 0.12;
+      if(bold.y < -8){ bold.y = H + 8; bold.x = Math.random() * W; }
+      ctx.beginPath(); ctx.arc(bold.x, bold.y, bold.r, 0, Math.PI * 2);
       ctx.fillStyle = "rgba(200,168,106,.5)"; ctx.fill();
       requestAnimationFrame(loop);
     })(0);
@@ -486,52 +691,47 @@
 
   /* lantern */
   var root = document.documentElement;
-  function moveLantern(x,y){ root.style.setProperty("--mx", x+"px"); root.style.setProperty("--my", y+"px"); }
+  function moveLantern(x, y){ root.style.setProperty("--mx", x + "px"); root.style.setProperty("--my", y + "px"); }
   addEventListener("pointermove", function(e){ moveLantern(e.clientX, e.clientY); }, {passive:true});
-  moveLantern(innerWidth/2, innerHeight*0.35);
+  moveLantern(innerWidth / 2, innerHeight * 0.35);
 
-  /* title breathing micro-variation: each visit breathes at a slightly different tempo */
   try{
-    var tempo = 6.4 + hash01(Math.floor(Math.random()*1e6))*2.4;
-    document.querySelector("h1").style.animationDuration = tempo.toFixed(2)+"s";
+    var tempo = 6.4 + hash01(Math.floor(Math.random() * 1e6)) * 2.4;
+    document.querySelector("h1").style.animationDuration = tempo.toFixed(2) + "s";
   }catch(e){}
 
-  /* ============ HUM OF THE GALLERY (generative, degrades with forgetting) ============ */
-  var audioCtx=null, humNodes=null, humming=false;
+  /* HUM, stutters as forgetting advances */
+  var audioCtx = null, humNodes = null, humming = false;
   var btn = document.getElementById("soundToggle");
   btn.addEventListener("click", function(){
     if(!humming){ startHum(); } else { stopHum(); }
   });
   function startHum(){
     try{
-      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
       audioCtx.resume();
       var g = audioCtx.createGain(); g.gain.value = 0.0;
       g.connect(audioCtx.destination);
-      var o1 = audioCtx.createOscillator(); o1.type="sine"; o1.frequency.value=55;
-      var o2 = audioCtx.createOscillator(); o2.type="sine"; o2.frequency.value=110.3;
-      var g2 = audioCtx.createGain(); g2.gain.value=.35; o2.connect(g2); g2.connect(g);
+      var o1 = audioCtx.createOscillator(); o1.type = "sine"; o1.frequency.value = 55;
+      var o2 = audioCtx.createOscillator(); o2.type = "sine"; o2.frequency.value = 110.3;
+      var g2 = audioCtx.createGain(); g2.gain.value = 0.35; o2.connect(g2); g2.connect(g);
       o1.connect(g); o1.start(); o2.start();
-      // fragmentation: the more forgotten, the more the hum stutters
-      var frag = audioCtx.createGain(); frag.gain.value = 1;
-      var lfo = audioCtx.createOscillator(); lfo.type="square";
-      lfo.frequency.value = 0.15 + (pct/100)*1.6;
+      var lfo = audioCtx.createOscillator(); lfo.type = "square";
+      lfo.frequency.value = 0.15 + (pct / 100) * 1.6;
       var lg = audioCtx.createGain();
-      lg.gain.value = Math.min(.8, .15 + (pct/100)*.7);
+      lg.gain.value = Math.min(0.8, 0.15 + (pct / 100) * 0.7);
       lfo.connect(lg);
-      // use lfo to wobble main gain
-      var base = .05;
+      var base = 0.05;
       g.gain.setTargetAtTime(base, audioCtx.currentTime, 2.0);
       lfo.start();
-      // amplitude wobble via periodic scheduling instead of direct param (compat)
       var wob = setInterval(function(){
-        if(!humming) { clearInterval(wob); return; }
-        var drop = Math.random() < (pct/100)*.7;
-        g.gain.setTargetAtTime(drop ? .004 : base, audioCtx.currentTime, .4);
+        if(!humming){ clearInterval(wob); return; }
+        var drop = Math.random() < (pct / 100) * 0.7;
+        g.gain.setTargetAtTime(drop ? 0.004 : base, audioCtx.currentTime, 0.4);
       }, 900);
-      humNodes = {g:g, o1:o1, o2:o2, lfo:lfo, wob:wob};
+      humNodes = {g: g, o1: o1, o2: o2, lfo: lfo, wob: wob};
       humming = true;
-      btn.setAttribute("aria-pressed","true");
+      btn.setAttribute("aria-pressed", "true");
       btn.innerHTML = "&#9834; silence the hum";
       showToast(pct > 50 ? "the hum stutters now. so much has been taken." : "the gallery hums. listen while there are still words.");
     }catch(e){ showToast("this browser declines to hum."); }
@@ -540,14 +740,14 @@
     try{
       if(humNodes){
         clearInterval(humNodes.wob);
-        humNodes.g.gain.setTargetAtTime(0.0, audioCtx.currentTime, .3);
+        humNodes.g.gain.setTargetAtTime(0.0, audioCtx.currentTime, 0.3);
         var hn = humNodes;
-        setTimeout(function(){ try{hn.o1.stop();hn.o2.stop();hn.lfo.stop();}catch(e){} }, 900);
+        setTimeout(function(){ try{ hn.o1.stop(); hn.o2.stop(); hn.lfo.stop(); }catch(e){} }, 900);
         humNodes = null;
       }
     }catch(e){}
     humming = false;
-    btn.setAttribute("aria-pressed","false");
+    btn.setAttribute("aria-pressed", "false");
     btn.innerHTML = "&#9834; hum of the gallery";
   }
 })();
