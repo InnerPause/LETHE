@@ -10,7 +10,7 @@
 
 You are standing in the Gallery of the Present, Exhibit No. 09.
 
-At birth, this page held **1080 words**. I counted them twice, late at night, coffee going cold. That number counts everything with a scheduled death: the collection and the signage alike.
+At birth, this page held **567 words**. That number counts everything with a scheduled death: the collection and the signage alike.
 
 The forgetting happens in two movements. First the collection falls, about five words a day, each midnight taking a few more, the words due that day going hour by hour, so even two visits on the same day will not match exactly. The signage waits its turn. Only when the last essay word is gone does the room begin taking its own walls, in reading order, a few words a day. The last word of all is Offer. After it goes, there is only the void.
 
@@ -42,15 +42,7 @@ Open the gallery. Read slow. Let the sentences leave a temperature on you and go
 
 There is no build step. There are no dependencies. The piece is a single `index.html` plus a small `favicon.svg`. It runs from `file://` too, though like most haunted things, it prefers to be visited properly.
 
-**To time travel** (for the impatient, the curious, the grieving):
-
-- `?day=0`, birth. Everything remembered.
-- `?day=1`, tomorrow. Notice what is already gone.
-- `?day=60`, late autumn of the mind.
-- `?day=178`, the walls begin. The collection is gone and the signage starts to go.
-- `?day=207`, the end. One word left.
-
-These links open memories, not the live room. When you are time traveling, a small banner tells you so, and offers the way back. Share these links like postcards from the future.
+There is only one state to visit: the page as it really is, on this day. There are no other versions to flip through. What is gone is gone.
 
 ---
 
@@ -76,10 +68,10 @@ Instead:
 
 For those who lift the frames to look at the wiring:
 
-- **The lottery is a ranking, in two movements.** Every essay word, headings included, is hashed, ordered by its hash, and dealt evenly across days 0 to 177. About five per day. Then every signage word, in reading order, is dealt across days 178 to 206. Offer is pinned as the last word, day 207, alone. The order is identical for every visitor, so we forget together.
-- **The clock is the real clock.** The live day is `floor((now minus GENESIS) / 86400000)`, where `GENESIS` is the dawn of Sept 9 2026. Words due today go by their hour, so the room moves even between midnights. `?day=` only opens a memory of that day. The header always names the final date: April 4 2027. Past it, the page hides everything, instruments and all, and leaves the void.
+- **The lottery is a ranking, in two movements.** Every essay word is hashed, ordered by its hash, and dealt evenly across days 0 to 177. About two or three per day. Then every signage word, in reading order, is dealt across days 178 to 206. Offer is pinned as the last word, day 207, alone. The order is identical for every visitor, so we forget together.
+- **The clock is the real clock.** The day is `floor((now minus GENESIS) / 86400000)`, where `GENESIS` is the dawn of Sept 9 2026. Words due today go by their hour, so the room moves even between midnights. There is only ever today. The page has no other states to visit. The header always names the final date: April 4 2027. Past it, the page hides everything, instruments and all, and leaves the void.
 - **Warmth is a window.** Gone words less than seven days taken still answer your hand. Older ones are permanently dark. Fading words are the ones due within two days. They shimmer first.
-- **The count covers the collection and the signage.** Essay prose, room headings, labels, links, the ritual text, the prompt in the offering box, the footer hint, the hum button, and Offer itself. Left out, on purpose: the instruments. The numbers, the dates, the docent lines that narrate the current state, your offerings (which dissolve on their own seven day schedule), and passing toasts. If the fuel gauge dissolved, you could not watch the forgetting. At the end, the void takes the instruments too, so every word goes in the end.
+- **The count covers the collection and the signage.** Essay prose, labels, the ritual text, the prompt in the offering box, the footer hint, the hum button, and Offer itself. Left out, on purpose: the instruments. The numbers, the dates, the docent lines that narrate the current state, your offerings (which dissolve on their own seven day schedule), and passing toasts. If the fuel gauge dissolved, you could not watch the forgetting. At the end, the void takes the instruments too, so every word goes in the end.
 - **Memory is local.** Visit counts, first visit date, and offerings live in `localStorage`. The page forgets, but it keeps your ticket stubs.
 - **Dust is unrepeatable.** The motes, the bold mote, the bulb Kelvin, the breathing tempo of the title. Reseeded every load. No two visits share the same air.
 - **Motion respects grief.** `prefers-reduced-motion` stills the dust, the grain, and the flicker. Forgetting continues. It simply does so quietly.

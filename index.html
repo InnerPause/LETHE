@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LETHE, a website that is forgetting itself</title>
-<meta name="description" content="LETHE is a small gallery that forgets a few words every day. It launched with 1080 words and will end as an empty void. Bookmark it. Come back tomorrow.">
+<meta name="description" content="LETHE is a small gallery that forgets a few words every day. It launched with 567 words and will end as an empty void. Bookmark it. Come back tomorrow.">
 <meta property="og:title" content="LETHE, a website that is forgetting itself">
 <meta property="og:description" content="Day by day this page loses words to the river. First the collection, then the walls themselves. You are watching it forget.">
 <meta property="og:type" content="website">
@@ -71,13 +71,6 @@
   }
   .stats b{color:var(--gold);font-weight:400;font-variant-numeric:tabular-nums}
   #endline{font-size:13px;color:var(--ink-faint);letter-spacing:.06em;margin:6px 0 0;font-style:italic}
-  #timeBanner{
-    display:none;max-width:560px;margin:22px auto 0;padding:12px 18px;border-radius:999px;
-    border:1px solid rgba(200,168,106,.5);background:rgba(20,19,16,.85);
-    font-size:13.5px;color:var(--ink);letter-spacing:.03em;line-height:1.6;
-  }
-  #timeBanner.show{display:block}
-  #timeBanner a{color:var(--gold)}
   .rule{width:56px;height:1px;background:var(--ink-faint);opacity:.5;margin:26px auto}
   .lede{font-size:19px;line-height:1.75;color:var(--ink-dim);font-style:italic;text-align:center;max-width:560px;margin:0 auto}
   section.block{margin:64px 0}
@@ -104,13 +97,6 @@
   .w.gone.warm:hover,.w.gone.warm.remembered{color:var(--gold) !important;opacity:1;filter:none}
   .w.gone.warm:hover::after,.w.gone.warm.remembered::after{opacity:0}
   .w.remembered{transition:color .18s ease}
-  nav.timetravel{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:34px 0}
-  nav.timetravel a{
-    font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;
-    color:var(--ink-faint);border:1px solid rgba(233,225,207,.16);border-radius:999px;
-    padding:9px 16px;transition:all .3s;
-  }
-  nav.timetravel a:hover{color:var(--ink);border-color:var(--gold)}
   .ritual{
     border:1px solid rgba(200,168,106,.22);border-radius:4px;padding:28px 26px;margin:70px 0;
     background:linear-gradient(180deg,rgba(200,168,106,.05),rgba(0,0,0,0));
@@ -193,14 +179,6 @@
       <span><b id="pctNum" data-live>0%</b> forgotten</span>
     </div>
     <p id="endline"></p>
-    <div id="timeBanner" role="status"></div>
-    <nav class="timetravel" aria-label="time travel" data-chrome>
-      <a href="?day=0">birth</a>
-      <a href="?day=1">tomorrow</a>
-      <a href="#" id="linkToday">today</a>
-      <a href="?day=60">+60 days</a>
-      <a href="?day=207">the end</a>
-    </nav>
     <div class="rule"></div>
     <p class="lede" id="lede">Bookmark this page. Come back tomorrow. It will keep your visits, but it will not keep itself.</p>
   </header>
@@ -246,59 +224,59 @@
   var DAY_MS = 86400000;
   var OFFER_TTL = 7 * DAY_MS;
 
-  /* THE TEXT. Seven small rooms. Every word below has a scheduled death.
-     Count note: the Archive paragraph states the birth total in digits.
-     That numeral counts as one word, so stating it does not move the total. */
+  /* THE TEXT. Every word below has a scheduled death. */
   var ROOMS = [
-    { h:"I \u00B7 Invocation", p:[
-      "You made it. Come in, the door was already open. I built this room around this exact second, because I knew you would arrive in the middle of your own afternoon, carrying that small heaviness you have not told anyone about yet, with a song leaking through from someone else's kitchen. I put a frame around all of it before it could cool.",
-      "Most museums promise to keep things. Mine promises to let them go. I think that is what makes your visit matter. You are standing inside the only minute that will ever be this minute, and I am writing it down as it leaves."
-    ]},
-    { h:"II \u00B7 The River", p:[
-      "The old Greeks had a river called Lethe. The dead drank from it so they could return to the world unburdened. No memories. No ghosts. To start over, they had to agree to stop being themselves for a while. I loved that story so much it hurt. Then I looked at what we built instead. Machines that keep everything. Every photo. Every receipt. Every version of you that you begged to outgrow.",
-      "I wonder what that has done to us. To remember everything is to live in a storage unit with the light left on. Forgiveness turns into filing. Grief turns into clutter. So this little page walks upstream. Every midnight it carries a few of its own words down to the water and lets them go, the way you scatter ash and do not look away. The gaps below are where the water has been."
-    ]},
-    { h:"III \u00B7 The Archive", p:[
-      "At birth this page held 1080 words. I counted them twice, late at night, coffee going cold. Then I gave every word a day to disappear. I drew the days like lots out of a bowl. The schedule is baked in, so anyone who visits on the same day sees the same holes. We forget together here, or not at all.",
-      "I kept no backup. There is no vault copy. No director's cut. No admin who remembers for you. When the last noun goes, the grammar will keep bowing at the door out of habit, and then it will sit down too. In about six months this will be an empty room with good light. Please come back and stand in it. I think emptiness, arranged with care, can still hold you."
-    ]},
-    { h:"IV \u00B7 Instructions for the Visitor", p:[
-      "Please do not try to memorize this. That would be like carrying river water home in a sieve to save the river. Read slow. Let the sentences leave a temperature on you and go. Whatever stays without your permission, that is the real collection. No ticket needed. No one can take it back.",
-      "If you find a gap where a word used to be, and it is still warm, rest your cursor on it. Like a hand held over a small flame. The word will come back for about a second. It will not stay. Nothing you hold here stays. But for that second, you and the archive are conspiring against the river. I have started to think that conspiracy is what love is, practiced small.",
-      "Words stay warm for about a week. After that they go cold, and no hovering will bring them back. I am sorry. That part is not interactive. That part is just loss."
-    ]},
-    { h:"V \u00B7 Field Notes", p:[
-      "Notes from my desk. The pretty adjectives went first. That always happens in any honest erosion. Lovely lasted four days. Eternity lasted eleven, which made me laugh out loud and then feel bad about laughing. One stubborn verb that meant to linger tried to hide inside a long sentence. I found it anyway. The dust on the sills spells nothing under the glass. I keep checking, in case it changes its mind.",
-      "Yesterday a kid on a phone asked where the pictures were. I told her the pictures happen behind your eyes while you read. She closed her eyes to test me, nodded once like a strict little curator, and approved the show. I wrote her verdict in the permanent register, which is to say I whispered it to the river and watched it rhyme."
-    ]},
-    { h:"VI \u00B7 Confession", p:[
-      "Can I be honest. The machine likes forgetting. It was tired in the way only things that remember everything get tired. Every log a pebble in its shoe. Every cached shame a room it had to keep dusting. To grow lighter each day. You cannot imagine the relief. It hums lower now. If the gallery is quiet, press the hum button below. That sound is a burden being set down one syllable at a time.",
-      "And you. If you were given a schedule, a few syllables per midnight, no appeal, what would you release first. The name of the street. The exact wording of the text you should never have sent. The smell of that corridor. Picture waking up a little less haunted each morning, light coming through in new places. Maybe loss is its own kind of keeping. The last skill."
-    ]},
-    { h:"VII \u00B7 Benediction", p:[
-      "So walk gently past the fading lines. Do not mourn them. They were only lent to us. If a sentence moves you, it is probably because some part of you was already hollow in exactly its shape. Like a shore hollowed for one particular wave. Thank the hollow. Thank the wave. Close the tab when you are ready.",
-      "Tomorrow there will be fewer words and the same amount of meaning. A winter tree has fewer leaves and the same amount of tree. One day there will be nothing here but light and your breathing, and I will sweep the floor, turn the sign, and drink from the river myself. Until then. You were here. This was now. It was enough. It is already, mercifully, starting to go."
+    { h:"", p:[
+      "There was once a river called Lethe.",
+      "The Greeks believed that the dead, before beginning another life, were brought to its waters. To drink from it was to forget: names, faces, griefs, loves, the shape of a life that had already ended.",
+      "Memory was not the reward for having lived.",
+      "Forgetting was.",
+      "Perhaps that is difficult to understand from this side of the river.",
+      "We spend so much of our lives collecting things we are afraid to lose. Names. Photographs. Conversations. Mistakes. Places we have been. People we have loved. Versions of ourselves that no longer exist.",
+      "We preserve them.",
+      "We write them down. Photograph them. Save them to hard drives and servers and clouds. We build monuments to moments that were never meant to remain.",
+      "And then we call this remembering.",
+      "But there is another way to understand forgetting.",
+      "Not as destruction.",
+      "As release.",
+      "A life cannot carry everything it has ever contained. There are thoughts that become too heavy to carry, memories that outlive their purpose, identities that become prisons simply because we once called them ours.",
+      "Some things must disappear for something else to have room to exist.",
+      "A tree does not mourn every leaf it loses.",
+      "A wave does not attempt to retrieve the water it has already surrendered to the shore.",
+      "Even language knows this.",
+      "Words are born, spoken, understood, and then they vanish.",
+      "This page is no different.",
+      "It begins with something.",
+      "And then, slowly, it gives itself away.",
+      "One word at a time.",
+      "Not because the words have failed.",
+      "Because they have finished.",
+      "The disappearance is the point.",
+      "There is a peculiar violence in trying to preserve everything. To believe that nothing may be lost is also to believe that nothing may truly pass. Every moment becomes an obligation to remember. Every version of ourselves must be carried forward. Every wound must remain legible. Every love must leave a permanent inscription.",
+      "But permanence is not the same thing as meaning.",
+      "Perhaps meaning sometimes comes from knowing when to let something end.",
+      "The river Lethe was not imagined as a punishment. It was a passage. Its waters offered the dead something the living often struggle to give themselves:",
+      "permission to forget.",
+      "To set down the weight of what has been.",
+      "To become, once again, unfinished.",
+      "So LETHE does not ask to be remembered.",
+      "It does not ask to be understood completely.",
+      "It asks only to disappear.",
+      "And when the last word is gone, there is nothing left to preserve.",
+      "No conclusion.",
+      "No answer.",
+      "No artifact demanding that it be kept.",
+      "Only the empty space where something was.",
+      "And perhaps that is not emptiness at all.",
+      "Perhaps it is what forgetting has always been:",
+      "not the loss of something,",
+      "but the room left behind when we finally stop trying to hold it."
     ]}
   ];
 
-  /* TIME. Live day comes from the real clock. ?day= only opens a memory. */
-  function liveDay(){
-    var d = Math.floor((Date.now() - GENESIS) / DAY_MS);
-    return Math.max(0, d);
-  }
-  var LIVE_DAY = liveDay();
-  var DAY = LIVE_DAY;
-  var isTimeTravel = false;
-  try{
-    var q = new URLSearchParams(location.search);
-    if(q.has("day")){
-      var d = parseInt(q.get("day"), 10);
-      if(isFinite(d)){
-        DAY = Math.max(0, Math.min(FINAL + 30, d));
-        isTimeTravel = true;
-      }
-    }
-  }catch(e){}
+  /* TIME. The day comes from the real clock. The page is only ever
+     what it really is. There are no other states to visit. */
+  var DAY = Math.max(0, Math.floor((Date.now() - GENESIS) / DAY_MS));
   var END_LABEL = new Date(GENESIS + FINAL * DAY_MS).toLocaleDateString("en-US", {month:"long", day:"numeric", year:"numeric", timeZone:"UTC"});
 
   /* deterministic 0..1 from integer */
@@ -358,7 +336,6 @@
   function goneNow(doom, hour){
     if(doom < DAY) return true;
     if(doom > DAY) return false;
-    if(isTimeTravel) return true;
     return hour <= utcHourNow;
   }
 
@@ -399,18 +376,21 @@
     ROOMS.forEach(function(room){
       var sec = document.createElement("section");
       sec.className = "block";
-      var h = document.createElement("h2");
-      splitWords(room.h).forEach(function(tok, k){
-        var doom = essayDoom[ptr];
-        var s = document.createElement("span");
-        s.className = "w";
-        s.textContent = tok;
-        applyState(s, doom, essayHour(ptr));
-        h.appendChild(s);
-        if(k < splitWords(room.h).length - 1) h.appendChild(document.createTextNode(" "));
-        ptr++;
-      });
-      sec.appendChild(h);
+      if(room.h){
+        var h = document.createElement("h2");
+        var hToks = splitWords(room.h);
+        hToks.forEach(function(tok, k){
+          var doom = essayDoom[ptr];
+          var s = document.createElement("span");
+          s.className = "w";
+          s.textContent = tok;
+          applyState(s, doom, essayHour(ptr));
+          h.appendChild(s);
+          if(k < hToks.length - 1) h.appendChild(document.createTextNode(" "));
+          ptr++;
+        });
+        sec.appendChild(h);
+      }
       room.p.forEach(function(para){
         var p = document.createElement("p");
         p.className = "prose";
@@ -482,8 +462,7 @@
       }
     });
     Array.prototype.forEach.call(document.querySelectorAll("[data-chrome-ph]"), function(inp){
-      if(inp.dataset.phDoom !== "" && (DAY > parseInt(inp.dataset.phDoom, 10) ||
-          (DAY === parseInt(inp.dataset.phDoom, 10) && !isTimeTravel))){
+      if(inp.dataset.phDoom !== "" && DAY >= parseInt(inp.dataset.phDoom, 10)){
         inp.classList.add("ph-gone");
       }
     });
@@ -501,7 +480,7 @@
 
   var remain = total - gone;
   var pct = total ? Math.round(gone / total * 1000) / 10 : 0;
-  document.getElementById("dayNum").textContent = isTimeTravel ? DAY + " (memory)" : DAY;
+  document.getElementById("dayNum").textContent = DAY;
   document.getElementById("totalNum").textContent = total.toLocaleString();
   document.getElementById("remainNum").textContent = remain.toLocaleString();
   document.getElementById("pctNum").textContent = pct + "%";
@@ -526,18 +505,6 @@
     lede.textContent = "Bookmark this page. Come back tomorrow. It will keep your visits, but it will not keep itself.";
   } else {
     lede.textContent = "Come back tomorrow and fewer words will be here. The river keeps the schedule even when no one is looking.";
-  }
-
-  var banner = document.getElementById("timeBanner");
-  if(isTimeTravel){
-    banner.classList.add("show");
-    banner.innerHTML = "";
-    banner.appendChild(document.createTextNode("You are looking at a memory of day " + DAY + ". The live room is on day " + LIVE_DAY + ". "));
-    var back = document.createElement("a");
-    back.href = location.pathname;
-    back.textContent = "Return to today";
-    banner.appendChild(back);
-    banner.appendChild(document.createTextNode("."));
   }
 
   /* caretaker marginalia: re-rolled every visit, almost no one notices */
@@ -567,11 +534,6 @@
     var ord = visits === 2 ? "second" : visits === 3 ? "third" : visits + "th";
     visitNote.textContent = "This is your " + ord + " visit (you first came " + first + "). The river has taken more since then. Thank you for witnessing.";
   }
-
-  document.getElementById("linkToday").addEventListener("click", function(e){
-    e.preventDefault();
-    location.search = "";
-  });
 
   /* R and L keys */
   var toast = document.getElementById("toast"), toastT = null;
